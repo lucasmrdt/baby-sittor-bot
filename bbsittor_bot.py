@@ -153,7 +153,6 @@ def fetch_new_bbsittings(delta_days: int = 7):
                     logger.error(
                         'Error while parsing babysitting {id} ({e}) data={data}', id=id, e=e, data=bb)
                 finally:
-                    raise SystemExit
                     need_sleep = True
 
         last_date = datetime.datetime.fromisoformat(bb_data['day'])
