@@ -162,4 +162,4 @@ def fetch_new_bbsittings(delta_days: int = 7):
 
 
 if __name__ == '__main__':
-    fetch_new_bbsittings()
+    fetch_new_bbsittings(365)  # 1 year of babysitting
