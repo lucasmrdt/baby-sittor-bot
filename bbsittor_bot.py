@@ -148,10 +148,10 @@ def fetch_new_bbsittings(delta_days: int = 7):
                     msg = parse_bbsitting(bb)
                     send_message(msg)
                     db[id] = bb
-                    logger.info('Found new babysitting id={id}.', id=id)
+                    logger.info('Found new babysitting #{id}.', id=id)
                 except Exception as e:
                     logger.error(
-                        'Error while parsing babysitting {id}. ({e}) data={data}', id=id, e=e, data=bb)
+                        'Error while parsing babysitting #{id}. ({e}) data={data}', id=id, e=e, data=bb)
                 finally:
                     need_sleep = True
 
