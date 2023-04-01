@@ -141,6 +141,8 @@ def fetch_new_bbsittings():
         last_id = id
 
         bb_lists = fetch_bbsittings(last_date)
+        if not bb_lists:
+            break
 
         for bb_data in bb_lists:
             if bb_data['object'] != 'babysitting_day':
@@ -156,7 +158,8 @@ def fetch_new_bbsittings():
 
                 try:
                     msg = parse_bbsitting(bb)
-                    send_message(msg)
+                    # send_message(msg)
+                    print(msg)
                     db[id] = bb
                     logger.info('Found new babysitting #{id}.', id=id)
                 except Exception as e:
