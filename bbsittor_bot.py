@@ -74,6 +74,9 @@ def fetch_bbsittings(start_date: str = None):
 
 
 def parse_bbsitting(bb):
+    def get_date_fmt(date):
+        return '%d/%m' if date.year == datetime.datetime.now().year else '%d/%m/%Y'
+
     assert bb['price_unit'] == 'per_hour', 'Unexpected price unit.'
 
     category_by_id = {
@@ -108,10 +111,10 @@ def parse_bbsitting(bb):
     category = category_by_id[category_id]
     week_days = [week_days_by_number[number] for number in week_days_number]
 
-    if (start - end).days == 0:
-        msg_date = f'le {start.strftime("%d/%m")} de {start.strftime("%H:%M")} à {end.strftime("%H:%M")}'
+    if (start - end).days == -1:
+        msg_date = f'le {start.strftime(get_date_fmt(start))} de {start.strftime("%H:%M")} à {end.strftime("%H:%M")}'
     else:
-        msg_date = f'du {start.strftime("%d/%m")} au {end.strftime("%d/%m")} ({"|".join(week_days)})'
+        msg_date = f'du {start.strftime(get_date_fmt(start))} au {end.strftime(get_date_fmt(end))} ({"|".join(week_days)})'
 
     msg = f'''{category} {price}€|h {msg_date} à {distance:.1f}km ([{city} {postal_code}]({address_url}))
 
@@ -123,15 +126,18 @@ def parse_bbsitting(bb):
     return msg
 
 
-def fetch_new_bbsittings(delta_days: int = 7):
-    end_date = datetime.datetime.now() + datetime.timedelta(days=delta_days)
-
-    last_date = None
+def fetch_new_bbsittings():
     db = shelve.open('bbsittings.db')
 
-    while last_date is None or last_date < end_date:
-        need_sleep = False
+    last_date = None
+    last_id = None
+    id = None
+
+    while id != last_id or last_date is None:
+        last_id = id
+
         bb_lists = fetch_bbsittings(last_date)
+
         for bb_data in bb_lists:
             if bb_data['object'] != 'babysitting_day':
                 logger.warning('Unexpected object "{type}" data={data}',
@@ -152,14 +158,11 @@ def fetch_new_bbsittings(delta_days: int = 7):
                 except Exception as e:
                     logger.error(
                         'Error while parsing babysitting #{id}. ({e}) data={data}', id=id, e=e, data=bb)
-                finally:
-                    need_sleep = True
 
         last_date = datetime.datetime.fromisoformat(bb_data['day'])
 
-        if need_sleep:
-            random_sleep(unit='s', min=1, max=10)
+        random_sleep(unit='s', min=1, max=1)  # not so random :)
 
 
 if __name__ == '__main__':
-    fetch_new_bbsittings(365)  # 1 year of babysitting
+    fetch_new_bbsittings()
