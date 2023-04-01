@@ -158,8 +158,7 @@ def fetch_new_bbsittings():
 
                 try:
                     msg = parse_bbsitting(bb)
-                    # send_message(msg)
-                    print(msg)
+                    send_message(msg)
                     db[id] = bb
                     logger.info('Found new babysitting #{id}.', id=id)
                 except Exception as e:
