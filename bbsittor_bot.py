@@ -77,8 +77,6 @@ def parse_bbsitting(bb):
     def get_date_fmt(date):
         return '%d/%m' if date.year == datetime.datetime.now().year else '%d/%m/%Y'
 
-    assert bb['price_unit'] == 'per_hour', 'Unexpected price unit.'
-
     category_by_id = {
         1: '👶🏻 Babysitting',
         2: '🔁 Régulier',
@@ -100,6 +98,7 @@ def parse_bbsitting(bb):
     end = datetime.datetime.fromisoformat(bb['local_end_time'])
     description = bb['description']
     price = bb['price'] / 100  # in euro
+    price_unit = bb['price_unit']
     category_id = bb['category_id']
     # in km
     distance = bb['babysitting_affinity_for_control_panel']['distance_to_start'] / 1000
@@ -116,7 +115,12 @@ def parse_bbsitting(bb):
     else:
         msg_date = f'du {start.strftime(get_date_fmt(start))} au {end.strftime(get_date_fmt(end))} ({"|".join(week_days)})'
 
-    msg = f'''{category} {price}€|h {msg_date} à {distance:.1f}km ([{city} {postal_code}]({address_url}))
+    if price_unit == 'per_hour':
+        msg_price = f'{price:.1f}€|h'
+    else:
+        msg_price = f'{price:.1f}€'
+
+    msg = f'''{category} {msg_price} {msg_date} à {distance:.1f}km ([{city} {postal_code}]({address_url}))
 
     {description.strip() if description else 'Pas de description.'}
 
